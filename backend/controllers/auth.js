@@ -22,7 +22,7 @@ exports.signup = (req, res) => {
     newUser.save((err, success) => {
       if (err) {
         return res.status(400).json({
-          error: err,
+          error: "Email is taken",
         });
       }
       res.json({ user: success });
