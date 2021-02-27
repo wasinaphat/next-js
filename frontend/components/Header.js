@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import Router from "next/router";
 import { APP_NAME } from "../config";
 import {
   Collapse,
@@ -15,6 +16,7 @@ import {
   DropdownItem,
   NavbarText,
 } from "reactstrap";
+import { getCookie, isAuth, signout } from "../services/auth";
 
 const Header = (props) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,16 +33,47 @@ const Header = (props) => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
-            <NavItem>
-              <Link href="/signin">
-                <NavLink>Signin</NavLink>
-              </Link>
-            </NavItem>
-            <NavItem>
-              <Link href="/signup">
-                <NavLink>Signup</NavLink>
-              </Link>
-            </NavItem>
+            {!isAuth() && (
+              <React.Fragment>
+                <NavItem>
+                  <Link href="/signin">
+                    <NavLink>Signin</NavLink>
+                  </Link>
+                </NavItem>
+                <NavItem>
+                  <Link href="/signup">
+                    <NavLink>Signup</NavLink>
+                  </Link>
+                </NavItem>
+              </React.Fragment>
+            )}
+
+            {isAuth() && isAuth().role === 0 && (
+              <NavItem>
+                <Link href="/user">
+                  <NavLink> {`${isAuth().name}`}'s Dashboard</NavLink>
+                </Link>
+              </NavItem>
+            )}
+            {isAuth() && isAuth().role === 1 && (
+              <NavItem>
+                <Link href="/user">
+                  <NavLink> {`${isAuth().name}`}'s Dashboard</NavLink>
+                </Link>
+              </NavItem>
+            )}
+            {isAuth() && (
+              <NavItem>
+                <Link href="/signin">
+                  <NavLink
+                    style={{ cursor: "pointer" }}
+                    onClick={() => signout(() => Router.replace("/signin"))}
+                  >
+                    Signout
+                  </NavLink>
+                </Link>
+              </NavItem>
+            )}
           </Nav>
         </Collapse>
       </Navbar>

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { signup } from "../../services/auth";
+import React, { useState, useEffect } from "react";
+import { signup, isAuth } from "../../services/auth";
+import Router from "next/router";
 const SignupComponent = () => {
   const [values, setValues] = useState({
     name: "wasinapl",
@@ -10,6 +11,9 @@ const SignupComponent = () => {
     message: "",
     showForm: true,
   });
+  useEffect(() => {
+    isAuth() && Router.push("/");
+  }, []);
   const { name, email, password, error, loading, message, showForm } = values;
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,7 +21,6 @@ const SignupComponent = () => {
     const user = { name, email, password };
     signup(user).then((data) => {
       if (data.error) {
-    
         setValues({ ...values, error: data.error, loading: false });
       } else {
         setValues({
@@ -78,12 +81,14 @@ const SignupComponent = () => {
       </form>
     );
   };
-  return <React.Fragment>
+  return (
+    <React.Fragment>
       {showError()}
       {showLoading()}
       {showMessage()}
-      {showForm&&signupForm()}
-      </React.Fragment>;
+      {showForm && signupForm()}
+    </React.Fragment>
+  );
 };
 
 export default SignupComponent;
