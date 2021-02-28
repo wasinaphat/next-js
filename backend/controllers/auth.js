@@ -85,7 +85,9 @@ exports.authMiddleWare = (req, res, next) => {
   });
 };
 exports.adminMiddleWare = (req, res, next) => {
+
   const adminUserId = req.user._id;
+
   User.findById({ _id: adminUserId }).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
