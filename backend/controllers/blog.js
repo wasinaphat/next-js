@@ -24,7 +24,7 @@ exports.create = (req, res) => {
         error: "Title is required ",
       });
     }
-    if (!body || !body < 200) {
+    if (!body || body < 200) {
       return res.status(400).json({
         error: "Content is too short  ",
       });
@@ -43,9 +43,10 @@ exports.create = (req, res) => {
     blog.title = title;
     blog.body = body;
     blog.excerpt = smartTrim(body, 320, " ","...");
-    blog.slugify = slugify(title).toLowerCase();
+    blog.slug = slugify(title).toLowerCase();
     blog.mtitle = `${title}| ${process.env.APP_NAME}`;
-    blog.mdesc = stripHtml(body.substring(0, 160));
+    // blog.mdesc = stripHtml(body.substring(0, 160));
+    blog.mdesc = body.substring(0, 160).replace(/<[^>]+>/g, '');;
     blog.postedBy = req.user._id;
 
     let arrayOfCategories = categories && categories.split(",");
@@ -61,6 +62,7 @@ exports.create = (req, res) => {
     }
     blog.save((err, result) => {
       if (err) {
+        console.log(title)
         return res.status(400).json({
           error: errorHandler(err),
         });

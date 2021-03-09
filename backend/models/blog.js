@@ -18,8 +18,8 @@ const blogSchema = new mongoose.Schema(
     body: {
       type: {},
       required: true,
-      min: 200,
-      max: 2000000,
+      min: 100,
+      max: 20000,
     },
     excerpt: {
       type: String,
@@ -36,7 +36,7 @@ const blogSchema = new mongoose.Schema(
       contentType: String,
     },
     categories: [{ type: ObjectId, ref: "Category", required: true }],
-    tags: [{ type: ObjectId, ref: "Tg", required: true }],
+    tags: [{ type: ObjectId, ref: "Tag", required: true }],
     postedBy: {
       type: ObjectId,
       ref: "User",

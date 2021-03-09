@@ -7,6 +7,9 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "../../node_modules/react-quill/dist/quill.snow.css";
 import { getCategories } from "../../services/category";
 import { getTags } from "../../services/tag";
+import { createBlog } from "../../services/blog";
+import { getCookie } from "../../services/auth";
+import {QuillFormats,QuillModules} from '../../helpers/quill'
 const CreateBlog = ({ router }) => {
   const blogFormLS = () => {
     if (typeof window === "undefined") {
@@ -18,6 +21,8 @@ const CreateBlog = ({ router }) => {
       return false;
     }
   };
+  const token =  getCookie('token')
+
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
 
@@ -66,7 +71,18 @@ const CreateBlog = ({ router }) => {
   };
   const publishBlog = (e) => {
     e.preventDefault();
-    console.log(e.target.value);
+    createBlog(formData,token).then(data=>{
+      if(data.error){
+        alert(data.error)
+        setValues({...values,error:data.error})
+      }else{
+        setValues({...values,title:'',error:'',success:`A new blog title ${data.title} is created`,})
+        setBody('')
+        setCategories([])
+        setTags([])
+      }
+    })
+    // console.log(e.target.value);
   };
   const handleChange = (name) => (e) => {
     const value = name === "photo" ? e.target.files[0] : e.target.value;
@@ -129,6 +145,12 @@ const CreateBlog = ({ router }) => {
       ))
     );
   }
+  const showError =()=>(
+    <div className="alert alert-danger" style={{display:error?'':'none'}}>{error}</div>
+  )
+  const showSuccess=()=>(
+    <div className="alert alert-success" style={{display:success?'':'none'}}>{success}</div>
+  )
   const createBlogForm = () => {
     return (
       <form onSubmit={publishBlog}>
@@ -143,8 +165,8 @@ const CreateBlog = ({ router }) => {
         </div>
         <div className="form-group">
           <ReactQuill
-            modules={CreateBlog.modules}
-            formats={CreateBlog.formats}
+            modules={QuillModules}
+            formats={QuillFormats}
             value={body}
             placeholder="write something amazing...."
             onChange={handleBody}
@@ -163,8 +185,23 @@ const CreateBlog = ({ router }) => {
       <div className="row">
         <div className="col-md-8">
           {createBlogForm()}
+     <div className="pt-3">
+     {showError()}
+          {showSuccess()}
+     </div>
         </div>
         <div className="col-md-4">
+          <div>
+            <div className="form-group">
+              <h5>Featured image</h5>
+              <hr/>
+              <small className="text-muted">Max size: 1mb</small>
+              <hr/>
+              <label className="btn btn-outline-info">Upload featured image
+              <input onChange={handleChange('photo')} type="file" accept="image/*" hidden/>
+              </label>
+            </div>
+          </div>
           <div>
           <h5>Categories</h5>
           <hr/>
@@ -185,32 +222,5 @@ const CreateBlog = ({ router }) => {
     </div>
   );
 };
-CreateBlog.modules = {
-  toolbar: [
-    [{ header: "1" }, { header: "2" }, { header: [3, 4, 5, 6] }, { font: [] }],
-    [{ size: [] }],
-    ["bold", "italic", "underline", "strike", "blockquote"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    ["link", "image", "video"],
-    ["clean"],
-    ["code-block"],
-  ],
-};
 
-CreateBlog.formats = [
-  "header",
-  "font",
-  "size",
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "blockquote",
-  "list",
-  "bullet",
-  "link",
-  "image",
-  "video",
-  "code-block",
-];
 export default withRouter(CreateBlog);
